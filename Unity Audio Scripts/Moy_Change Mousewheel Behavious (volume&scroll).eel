@@ -1,0 +1,60 @@
+// @description Change the behavious of Mousewheel
+// @version 1.0
+// @author Moy
+// @changelog
+//  + init
+// @note
+// This Script is based on Airon's  Item/Take volume with Mousewheel Script
+// https://forum.cockos.com/showthread.php?t=164985
+
+function VAL2DB(x)(
+  x < 0.0000000298023223876953125 ? -150 : max(-150, log(x)* 8.6858896380650365530225783783321);  
+);
+
+function DB2VAL(x) ( exp((x)*0.11512925464970228420089957273422 ));
+ 
+want_item = 1; // set to 0 for take volume rather than item volume
+
+cnt=0; // Count?
+tr=0; // Track?
+
+// Queries contextual information about the script, typically MIDI/OSC input values.
+// get_action_context(#filename,sectionID,cmdID,mode,resolution,val )
+get_action_context(#foo,0,0, mode, res, val);
+// ShowConsoleMsg("val = "+val);
+
+// If have selected item, change the volume.
+function CHVOLUME() (
+  val != 0 ? loop(GetNumTracks(), // Only do the loop when val!= 0; Get the number of all tracks.
+    trh = GetTrack(0,tr); // Track Head? The first track on Current Prj(0)
+    idx=0;
+    
+    loop(GetTrackNumMediaItems(trh),  // Get all of the selected items
+      item = GetTrackMediaItem(trh,idx);
+      IsMediaItemSelected(item) && (want_item || (tk = GetActiveTake(item))) ? (  // If the item is selected OR wanted
+        vol = want_item ? GetMediaItemInfo_Value(item,"D_VOL") : GetMediaItemTakeInfo_Value(tk,"D_VOL");
+        ph = vol < 0.0;
+        vol = DB2VAL(VAL2DB(abs(vol)) + (val > 0 ? 0.5 : -0.5));
+        //MB(vol, "vol = ?", type);
+        want_item ? SetMediaItemInfo_Value(item,"D_VOL",vol) : SetMediaItemTakeInfo_Value(tk,"D_VOL",ph ? -vol : vol);      
+        cnt+=1;
+        z=1;
+      );
+      idx+=1
+    );
+    tr+=1
+  );
+  
+  cnt ? UpdateTimeline();
+);
+
+
+// If not, scroll the view.
+function SCROLL() (
+  // val > 0 ? Main_OnCommand(40138, 0) : Main_OnCommand(40139, 0); // 38=Scroll up, 39=Scroll down
+  val > 0 ? Main_OnCommand(41325, 0) : Main_OnCommand(41326, 0); // 25=increase, 26=decrease
+);
+
+Main_OnCommand(40528, 0);  // Select item under mouse cursor
+itcount = CountSelectedMediaItems(0);
+itcount != 0 ? CHVOLUME() : SCROLL();
