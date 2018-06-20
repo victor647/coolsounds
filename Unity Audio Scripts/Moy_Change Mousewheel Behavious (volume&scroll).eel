@@ -51,8 +51,8 @@ function CHVOLUME() (
 
 // If not, scroll the view.
 function SCROLL() (
-  // val > 0 ? Main_OnCommand(40138, 0) : Main_OnCommand(40139, 0); // 38=Scroll up, 39=Scroll down
-  val > 0 ? Main_OnCommand(41325, 0) : Main_OnCommand(41326, 0); // 25=increase, 26=decrease
+  val > 0 ? Main_OnCommand(40138, 0) : Main_OnCommand(40139, 0); // 38=Scroll up, 39=Scroll down
+  // val > 0 ? Main_OnCommand(41325, 0) : Main_OnCommand(41326, 0); // 25=increase, 26=decrease
 );
 
 Main_OnCommand(40528, 0);  // Select item under mouse cursor
